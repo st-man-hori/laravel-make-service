@@ -12,7 +12,7 @@ php artisan make:service {name}
 
 ### Example
 ```bash
-$ php artisan make:service User
+$ php artisan make:service UserService
 ```
 
 ```php
