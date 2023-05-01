@@ -1,0 +1,19 @@
+{
+    "name": "st-man-hori/laravel-make-service",
+    "type": "library",
+    "license": "MIT",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "StManHori\\LaravelMakeService\\LaravelMakeServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "StManHori\\LaravelMakeService\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
