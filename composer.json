@@ -1,5 +1,6 @@
 {
     "name": "st-man-hori/laravel-make-service",
+    "description": "create service class and service interface for laravel",
     "type": "library",
     "license": "MIT",
     "extra": {
