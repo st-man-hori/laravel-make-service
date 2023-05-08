@@ -6,5 +6,5 @@ use DummyNamespace\DummyInterface;
 
 class DummyClass implements DummyInterface
 {
-  
+    //
 }
