@@ -12,6 +12,11 @@ class MakeServiceCommand extends Command
 
     protected $files;
 
+    /**
+     * The constructor initializes the Filesystem instance.
+     *
+     * @param Filesystem $files The Filesystem instance.
+     */
     public function __construct(Filesystem $files)
     {
         parent::__construct();
@@ -19,32 +24,66 @@ class MakeServiceCommand extends Command
         $this->files = $files;
     }
 
+    /**
+     * This method handles the command execution.
+     */
     public function handle()
     {
         $name = $this->argument('name');
 
-        $interfacePath = app_path('Services/' . $name . 'Interface.php');
-        $classPath = app_path('Services/' . $name . '.php');
+        $name = str_replace('/', '\\', $name);
 
-        $this->createDirectory($interfacePath);
-        $this->createDirectory($classPath);
+        $interfacePath = app_path('Services/' . str_replace('\\', '/', $name) . 'Interface.php');
+        $classPath = app_path('Services/' . str_replace('\\', '/', $name) . '.php');
+
+        $this->createDirectory(dirname($interfacePath));
+        $this->createDirectory(dirname($classPath));
 
         $this->files->put($interfacePath, $this->buildInterface($name));
         $this->files->put($classPath, $this->buildClass($name));
 
         $this->info('Service created successfully.');
         $this->info("Register the service in AppServiceProvider using:");
-        $this->line("\$this->app->bind(App\Services\\{$name}Interface::class, App\Services\\{$name}::class);");
+        $this->line("\$this->app->bind(\App\Services\\{$name}Interface::class, \App\Services\\{$name}::class);");
     }
 
-    protected function createDirectory($path)
+    /**
+     * Replaces the namespace in the provided stub with the correct namespace.
+     *
+     * @param string $stub The stub with the namespace placeholder.
+     * @param string $name The name of the service class.
+     * @return string The updated stub with the correct namespace.
+     */
+    protected function replaceNamespace(string $stub, string $name)
     {
-        if (!$this->files->isDirectory(dirname($path))) {
-            $this->files->makeDirectory(dirname($path), 0755, true, true);
+        $namespace = 'App\Services';
+        if (strpos($name, '\\') !== false) {
+            $subNamespace = substr($name, 0, strrpos($name, '\\'));
+            $namespace .= '\\' . $subNamespace;
+        }
+        return str_replace('DummyNamespace', $namespace, $stub);
+    }
+
+    /**
+     * Creates a directory with the specified path if it doesn't exist.
+     *
+     * @param string $path The path of the directory to create.
+     */
+    protected function createDirectory(string $path)
+    {
+        if (!$this->files->isDirectory($path)) {
+            $this->files->makeDirectory($path, 0755, true, true);
         }
     }
 
-    protected function buildInterface($name)
+
+    /**
+     * Builds the service interface using the provided stub.
+     *
+     * @param string $name The name of the service class.
+     * @return string The content of the generated interface.
+     */
+    protected function buildInterface(string $name)
     {
         $stub = $this->files->get(__DIR__.'/stubs/service-interface.stub');
 
@@ -54,7 +93,13 @@ class MakeServiceCommand extends Command
         return $stub;
     }
     
-    protected function buildClass($name)
+    /**
+     * Builds the service class using the provided stub.
+     *
+     * @param string $name The name of the service class.
+     * @return string The content of the generated class.
+     */
+    protected function buildClass(string $name)
     {
         $stub = $this->files->get(__DIR__.'/stubs/service-class.stub');
         
@@ -64,22 +109,31 @@ class MakeServiceCommand extends Command
     
         return $stub;
     }
-    
 
-
-    protected function replaceNamespace($stub, $name)
+    /**
+     * Replaces the interface name in the provided stub with the correct interface name.
+     *
+     * @param string $stub The stub with the interface name placeholder.
+     * @param string $name The name of the service class.
+     * @return string The updated stub with the correct interface name.
+     */
+    protected function replaceInterface(string $stub, string $name)
     {
-        return str_replace('DummyNamespace', 'App\Services', $stub);
+        $interfaceName = substr($name, strrpos($name, '\\') + 1) . 'Interface';
+        return str_replace('DummyInterface', $interfaceName, $stub);
     }
 
-    protected function replaceInterface($stub, $name)
+    /**
+     * Replaces the class name in the provided stub with the correct class name.
+     *
+     * @param string $stub The stub with the class name placeholder.
+     * @param string $name The name of the service class.
+     * @return string The updated stub with the correct class name.
+     */
+    protected function replaceClass(string $stub, string $name)
     {
-        return str_replace('DummyInterface', $name . 'Interface', $stub);
-    }
-    
-    protected function replaceClass($stub, $name)
-    {
-        return str_replace('DummyClass', $name, $stub);
+        $className = substr($name, strrpos($name, '\\') + 1);
+        return str_replace('DummyClass', $className, $stub);
     }
 
 }
