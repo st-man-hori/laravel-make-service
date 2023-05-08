@@ -26,7 +26,7 @@ use App\Services\UserServiceInterface;
 
 class UserService implements UserServiceInterface
 {
-  
+    //
 }
 ```
 
@@ -39,6 +39,6 @@ namespace App\Services;
 
 interface UserServiceInterface
 {
-  
+    //
 }
 ```
